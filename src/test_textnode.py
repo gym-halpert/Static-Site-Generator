@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType, text_node_to_html_node
-from markdown_to_textnode import split_nodes_delimeter
+from markdown_funcs import split_nodes_delimeter
 
 class TestTextNode(unittest.TestCase):
     def test_eq(self):
