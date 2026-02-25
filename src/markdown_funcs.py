@@ -2,14 +2,14 @@ import re
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode, ParentNode
 
-def split_nodes_delimeter(old_nodes, delimeter, text_type):
+def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
     for node in old_nodes:
         if node.text_type != TextType.TEXT:
             new_nodes.append(node)
         parts = node.text.split(delimeter)
         if len(parts) % 2 == 0:
-            raise ValueError(f"Invalid markdown, unbalanced delimeter '{delimeter}' in '{node.text}'")
+            raise ValueError(f"Invalid markdown, unbalanced delimiter '{delimiter}' in '{node.text}'")
         for i, part in enumerate(parts):
             new_nodes.append(TextNode(part, TextType.TEXT if i % 2 == 0 else text_type))
     return new_nodes
@@ -59,6 +59,16 @@ def split_nodes_link(old_nodes):
         if original != "":
             new_nodes.append(TextNode(original, TextType.TEXT))
     return new_nodes
+
+def text_to_textnodes(text):
+    initial_node = TextNode(text, TextType.TEXT)
+    nodes = [initial_node]
+    result1 = split_nodes_delimiter(nodes, "**", TextType.BOLD)
+    result2 = split_nodes_delimiter(result1, "_", TextType.ITALIC)
+    result3 = split_nodes_delimiter(result2, "`", TextType.CODE)
+    result4 = split_nodes_image(result3)
+    result5 = split_nodes_link(result4)
+    return result5
 
 def extract_markdown_images(text):
     pattern = r'!\[([^\]]+)\]\((https?://[^\s)]+)\)'

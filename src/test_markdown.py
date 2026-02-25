@@ -1,4 +1,4 @@
-from markdown_funcs import extract_markdown_images, extract_markdown_links, split_nodes_delimeter, split_nodes_link, split_nodes_image
+from markdown_funcs import extract_markdown_images, extract_markdown_links, split_nodes_delimiter, split_nodes_link, split_nodes_image
 
 def test_extract_markdown_images(self):
     matches = extract_markdown_images(
