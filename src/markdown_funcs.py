@@ -79,3 +79,11 @@ def extract_markdown_links(text):
     pattern = r'\[([^\]]+)\]\((https?://[^\s)]+)\)'
     matches = re.findall(pattern, text)
     return [(description, url) for description, url in matches]
+
+def markdown_to_blocks(markdown):
+    blocks = []
+    markdown.split("\n\n")
+    for block in markdown:
+        stripped = block.strip()
+        blocks.append(block)
+    return blocks
