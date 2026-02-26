@@ -1,4 +1,5 @@
-from markdown_funcs import extract_markdown_images, extract_markdown_links, split_nodes_delimiter, split_nodes_link, split_nodes_image, markdown_to_blocks
+import unittest
+from markdown_funcs import extract_markdown_images, extract_markdown_links, split_nodes_delimiter, split_nodes_link, split_nodes_image, markdown_to_blocks, BlockType, block_to_block_type
 
 def test_extract_markdown_images(self):
     matches = extract_markdown_images(
@@ -126,3 +127,39 @@ This is the same paragraph on a new line
                 "- This is a list\n- with items",
             ],
         )
+
+def test_header():
+    assert block_to_block_type("# Header") == BlockType.HEADER
+    assert block_to_block_type("## Subheader") == BlockType.HEADER
+    assert block_to_block_type("###### Small Header") == BlockType.HEADER
+
+def test_code_block():
+    assert block_to_block_type("```\ncode line 1\ncode line 2\n```") == BlockType.CODE_BLOCK
+    assert block_to_block_type("```\nsingle line code\n```") == BlockType.CODE_BLOCK
+
+def test_quote():
+    assert block_to_block_type("> This is a quote.") == BlockType.QUOTE
+    assert block_to_block_type("> First line\n> Second line") == BlockType.QUOTE
+
+def test_unordered_list():
+    assert block_to_block_type("- Item 1\n- Item 2\n- Item 3") == BlockType.UNORDERED_LIST
+    assert block_to_block_type("- A\n- B\n- C") == BlockType.UNORDERED_LIST
+
+def test_ordered_list():
+    assert block_to_block_type("1. First item\n2. Second item\n3. Third item") == BlockType.ORDERED_LIST
+    assert block_to_block_type("10. Tenth item\n11. Eleventh item") == BlockType.ORDERED_LIST
+
+def test_bold():
+    assert block_to_block_type("This is **bold text**.") == BlockType.BOLD
+    assert block_to_block_type("Text with **multiple bolds** and **bold again**.") == BlockType.BOLD
+
+def test_italics():
+    assert block_to_block_type("This is *italic text*.") == BlockType.ITALICS
+    assert block_to_block_type("Text with *multiple italics* and *italic again*.") == BlockType.ITALICS
+
+def test_unknown():
+    assert block_to_block_type("Just some random text without Markdown.") == BlockType.UNKNOWN
+    assert block_to_block_type("###") == BlockType.UNKNOWN  # Invalid header
+
+if __name__ == "__main__":
+    unittest.main()
