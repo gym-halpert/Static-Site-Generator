@@ -8,7 +8,8 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
     for node in old_nodes:
         if node.text_type != TextType.TEXT:
             new_nodes.append(node)
-        parts = node.text.split(delimeter)
+            continue
+        parts = node.text.split(delimiter)
         if len(parts) % 2 == 0:
             raise ValueError(f"Invalid markdown, unbalanced delimiter '{delimiter}' in '{node.text}'")
         for i, part in enumerate(parts):
@@ -30,7 +31,7 @@ def split_nodes_image(old_nodes):
             sections = original.split(f"![{image[0]}]({image[1]})", 1)
             if len(sections) != 2:
                 raise ValueError("invalid markdown, image section not closed")
-            if section[0] != "":
+            if sections[0] != "":
                 new_nodes.append(TextNode(sections[0], TextType.TEXT))
             new_nodes.append(TextNode(image[0], TextType.IMAGE, image[1]))
             original = sections[1]
@@ -53,7 +54,7 @@ def split_nodes_link(old_nodes):
             sections = original.split(f"[{link[0]}]({link[1]})", 1)
             if len(sections) != 2:
                 raise ValueError("invalid markdown, link section not closed")
-            if section[0] != "":
+            if sections[0] != "":
                 new_nodes.append(TextNode(sections[0], TextType.TEXT))
             new_nodes.append(TextNode(link[0], TextType.LINK, link[1]))
             original = sections[1]
@@ -64,29 +65,29 @@ def split_nodes_link(old_nodes):
 def text_to_textnodes(text):
     initial_node = TextNode(text, TextType.TEXT)
     nodes = [initial_node]
-    result1 = split_nodes_delimiter(nodes, "**", TextType.BOLD)
-    result2 = split_nodes_delimiter(result1, "_", TextType.ITALIC)
-    result3 = split_nodes_delimiter(result2, "`", TextType.CODE)
-    result4 = split_nodes_image(result3)
-    result5 = split_nodes_link(result4)
+    result1 = split_nodes_image(nodes)
+    result2 = split_nodes_link(result1)
+    result3 = split_nodes_delimiter(result2, "**", TextType.BOLD)
+    result4 = split_nodes_delimiter(result3, "_", TextType.ITALIC)
+    result5 = split_nodes_delimiter(result4, "`", TextType.CODE)
     return result5
 
 def extract_markdown_images(text):
-    pattern = r'!\[([^\]]+)\]\((https?://[^\s)]+)\)'
+    pattern = r'!\[([^\]]+)\]\(([^\s)]+)\)'
     matches = re.findall(pattern, text)
     return [(alt, url) for alt, url in matches]
 
 def extract_markdown_links(text):
-    pattern = r'\[([^\]]+)\]\((https?://[^\s)]+)\)'
+    pattern = r'\[([^\]]+)\]\(([^\s)]+)\)'
     matches = re.findall(pattern, text)
     return [(description, url) for description, url in matches]
 
 def markdown_to_blocks(markdown):
     blocks = []
-    markdown.split("\n\n")
-    for block in markdown:
+    split_blocks = markdown.split("\n\n")
+    for block in split_blocks:
         stripped = block.strip()
-        blocks.append(block)
+        blocks.append(stripped)
     return blocks
 
 class BlockType(Enum):
@@ -214,3 +215,8 @@ def quote_to_html_node(block):
     content = " ".join(new_lines)
     children = text_to_children(content)
     return ParentNode("blockquote", children)
+
+if __name__ == "__main__":
+    test_text = "[Why Glorfindel is More Impressive than Legolas](/blog/glorfindel)"
+    print(f"Testing: {test_text}")
+    print(f"Result: {extract_markdown_links(test_text)}")
