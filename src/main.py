@@ -3,6 +3,7 @@ import shutil
 from textnode import TextType
 from textnode import TextNode
 from markdown_funcs import *
+from pathlib import Path
 
 def main():
 #    var = TextNode("This is an anchor", TextType.LINK, "https://www.boot.dev")
@@ -13,7 +14,8 @@ def main():
 
     public_to_static(source, destination)
 
-    generate_page("content/index.md", "template.html", "public/index.html")
+#    generate_page("content/index.md", "template.html", "public/index.html")
+    generate_pages_recursive("content", "template.html", "public")
 
 def extract_title(markdown):
     lines = markdown.split("\n")
@@ -58,6 +60,19 @@ def copy_recursion(source, destination):
         else:
             shutil.copy(source_path, destination_path)
             print(f'Copied: {source_path} to {destination_path}')
+
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    files = os.listdir(dir_path_content)
+    for file in files:
+        full_path = os.path.join(dir_path_content, file)
+        if file.endswith(".md"):
+            md_path = Path(file)
+            destination = os.path.join(dest_dir_path, md_path.with_suffix(".html"))
+            generate_page(full_path, template_path, destination)
+        if os.path.isdir(full_path):
+            new_path = os.path.join(dest_dir_path, file)
+            generate_pages_recursive(full_path, template_path, new_path)
+
 
 if __name__ == "__main__":
     main()
